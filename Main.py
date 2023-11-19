@@ -19,6 +19,7 @@ URL_REGEX =  r"^https?:\/\/[a-zA-Z0-9.-]+"
 Search = { #stuff to find
     "api-key" : r'"[a-zA-Z0-9]{32}\s*"',   # Algolia and Typsense format api-key
     "URL" : r'^"https?:\/\/[a-zA-Z0-9.-\\?]+"', #Trying to find URL querys
+    "Typesense" : r"[Tt]ypesense.{100}"
 }
 
 def searchRegex(html: str, regex):
@@ -87,8 +88,8 @@ def Crawler(url, maxProfundidad):
     else:
         print(f"could not find any in {len(scripts)} script details")
     
-    if redirect and profundidad < 3:
-        Crawler((newUrl for newUrl in redirect), maxProfundidad+1)
+    if redirect and profundidad > 0:
+        Crawler((newUrl for newUrl in redirect), maxProfundidad-1)
     
 ## input
 try:
