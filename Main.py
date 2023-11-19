@@ -5,6 +5,7 @@ import re
 
 Visited = []
 urlActual = ""
+
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246",
     "Accept-Encoding": "gzip, deflate, br",
@@ -19,18 +20,19 @@ URL_REGEX =  r"^https?:\/\/[a-zA-Z0-9.-]+"
 Search = { #stuff to find
     "api-key" : r'"[a-zA-Z0-9]{32}\s*"',   # Algolia and Typsense format api-key
     "URL" : r'^"https?:\/\/[a-zA-Z0-9.-\\?]+"', #Trying to find URL querys
-    "Typesense" : r"[Tt]ypesense.{100}"
+    "Typesense" : 'SearchClient\(\{[a-zA-Z0-9\(\)\[\]\{\}\.\'",:\-]*\}\);'
 }
 
 def searchRegex(html: str, regex):
     found = re.findall(Search[regex], html)
-    found = [f"{regex}: + {key}" for key in found]
+    found = [f"{regex}: {key}" for key in found]
     return found if found else None
 
 def getPageData(url):
     try:
         response = httpx.get(url, headers=HEADERS)
         sel = Selector(response.text)
+        print(sel)
         scripts = sel.xpath("//script/@src").getall()
         pages = sel.xpath("//a/@href").getall()
         return response, scripts, pages
@@ -74,6 +76,7 @@ def Crawler(url, maxProfundidad):
     
     Visited.append(url)
     response, scripts, pages = getPageData(url)
+    print(response.is_error)
     redirect = getNewUrls(pages)
     prioridades = ["app", "settings", "main"]
     
@@ -88,7 +91,7 @@ def Crawler(url, maxProfundidad):
     else:
         print(f"could not find any in {len(scripts)} script details")
     
-    if redirect and profundidad > 0:
+    if redirect and maxProfundidad > 0:
         Crawler((newUrl for newUrl in redirect), maxProfundidad-1)
     
 ## input
