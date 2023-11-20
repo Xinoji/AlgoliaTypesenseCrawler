@@ -11,16 +11,18 @@ HEADERS = {
     "Accept-Encoding": "gzip, deflate, br",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
     "Connection": "keep-alive",
-    "Accept-Language": "es-MX,es,en-US,en;q=0.9,lt;q=0.8,et;q=0.7,de;q=0.6",
+    "Accept-Language": "en-US,en;q=0.9,lt;q=0.8,et;q=0.7,de;q=0.6",
 }
 
     
 URL_REGEX =  r"^https?:\/\/[a-zA-Z0-9.-]+"
 
 Search = { #stuff to find
-    "api-key" : r'"[a-zA-Z0-9]{32}\s*"',   # Algolia and Typsense format api-key
-    "URL" : r'^"https?:\/\/[a-zA-Z0-9.-\\?]+"', #Trying to find URL querys
-    "Typesense" : 'SearchClient\(\{[a-zA-Z0-9\(\)\[\]\{\}\.\'",:\-]*\}\);'
+    "api-key" : r'"[a-zA-Z0-9]{32,200}\s*"',   # Algolia and Typsense format api-key
+    "URL" : r'^"platform-typesense-service-prod\..*\.io"', #Trying to find URL querys
+    "Typesense" : r'SearchClient\([a-zA-Z0-9\(\)\[\]\{\}\.\'",:\-]*\)', # find Typesense Search
+    "pre-Algolia": r'(\w*algolia\w*?):"(.+?)"', #find something named algonia
+    "Algolia" : r'"(\w{10}|\w{32})"\s*,\s*"(\w{10}|\w{32})"' #find if they put directly in it
 }
 
 def searchRegex(html: str, regex):
@@ -32,8 +34,8 @@ def getPageData(url):
     try:
         response = httpx.get(url, headers=HEADERS)
         sel = Selector(response.text)
-        print(sel)
         scripts = sel.xpath("//script/@src").getall()
+        scripts += sel.xpath("//link[@as='script']/@href").getall()
         pages = sel.xpath("//a/@href").getall()
         return response, scripts, pages
     except Exception as error:
@@ -76,6 +78,7 @@ def Crawler(url, maxProfundidad):
     
     Visited.append(url)
     response, scripts, pages = getPageData(url)
+    print(response)
     print(response.is_error)
     redirect = getNewUrls(pages)
     prioridades = ["app", "settings", "main"]
@@ -83,7 +86,7 @@ def Crawler(url, maxProfundidad):
     scripts = sorted(scripts, key=lambda script: any(key in script for key in prioridades), reverse=True)
     print(f"found {len(scripts)} script files in {url}")
     results = SearchRegexInScripts(scripts)
-
+    results += FoundAllRegex(response.text)
     if results:
         print(f"find {len(results)} in {url}")
         with open(f'Output/{url.removeprefix("https://")}.txt', 'w') as file:
@@ -96,8 +99,9 @@ def Crawler(url, maxProfundidad):
     
 ## input
 try:
-    Crawler('https://www.flat.mx', 0)
-except:
+    Crawler('https://alternativeto.net', 0)
+except Exception as error:
+    print(error)
     print("FINALIZADO POR ERROR")
 finally:
     with open(f'Output/Visitados.txt', 'w') as file:
