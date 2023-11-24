@@ -5,6 +5,7 @@ import re
 
 Visited = []
 urlActual = ""
+PROFUNDIDAD_MAXIMA = 10
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246",
@@ -16,7 +17,9 @@ HEADERS = {
 START_URL = 'https://alternativeto.net'
     
 URL_REGEX =  [
-    r"^https?:\/\/[a-zA-Z0-9.-]+"
+    START_URL + r"\/.*" # websites from the start url
+    r"^https?:\/\/[a-zA-Z0-9.-]+\/.*" #any root domain website
+    
     ]
 
 Search = { #stuff to find
@@ -104,7 +107,7 @@ def Crawler(url, maxProfundidad):
     
 ## input
 try:
-    Crawler(START_URL, 0)
+    Crawler(START_URL, PROFUNDIDAD_MAXIMA)
 except Exception as error:
     print(error)
     print("FINALIZADO POR ERROR")
