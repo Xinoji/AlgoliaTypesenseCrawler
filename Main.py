@@ -13,9 +13,11 @@ HEADERS = {
     "Connection": "keep-alive",
     "Accept-Language": "en-US,en;q=0.9,lt;q=0.8,et;q=0.7,de;q=0.6",
 }
-
+START_URL = 'https://alternativeto.net'
     
-URL_REGEX =  r"^https?:\/\/[a-zA-Z0-9.-]+"
+URL_REGEX =  [
+    r"^https?:\/\/[a-zA-Z0-9.-]+"
+    ]
 
 Search = { #stuff to find
     "api-key" : r'"[a-zA-Z0-9]{32,200}\s*"',   # Algolia and Typsense format api-key
@@ -44,10 +46,12 @@ def getPageData(url):
 def getNewUrls(pages):
     redirect = []
     for newUrl in pages:    
-        tmp = re.findall(URL_REGEX, newUrl)
-        tmp.append("")
-        if tmp[0] != "" and not (tmp[0] in Visited) :
-            redirect += tmp[0]
+        for regex in URL_REGEX:
+            tmp = re.findall(regex, newUrl)
+            tmp.append("")
+            tmp[0] = urljoin(urlActual, tmp[0]) 
+            if tmp[0] != "" and not (tmp[0] in Visited):
+                redirect += tmp[0] 
     return list(set(redirect))
 
 def FoundAllRegex(script):
@@ -85,9 +89,10 @@ def Crawler(url, maxProfundidad):
     
     scripts = sorted(scripts, key=lambda script: any(key in script for key in prioridades), reverse=True)
     print(f"found {len(scripts)} script files in {url}")
-    results = SearchRegexInScripts(scripts)
+    results = SearchRegexInScripts([url] + scripts)
     results += FoundAllRegex(response.text)
     if results:
+        results = list(set(results))
         print(f"find {len(results)} in {url}")
         with open(f'Output/{url.removeprefix("https://")}.txt', 'w') as file:
             file.writelines(x + "\n" for x in results)
@@ -99,7 +104,7 @@ def Crawler(url, maxProfundidad):
     
 ## input
 try:
-    Crawler('https://alternativeto.net', 0)
+    Crawler(START_URL, 0)
 except Exception as error:
     print(error)
     print("FINALIZADO POR ERROR")
