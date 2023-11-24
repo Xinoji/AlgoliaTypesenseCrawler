@@ -8,18 +8,27 @@ urlActual = ""
 PROFUNDIDAD_MAXIMA = 10
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-    "Connection": "keep-alive",
-    "Accept-Language": "en-US,en;q=0.9,lt;q=0.8,et;q=0.7,de;q=0.6",
+"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+"Accept-Encoding": "gzip, deflate, br",
+"Accept-Language": "en-US,en;q=0.8",
+"Cache-Control": "max-age=0",
+"Sec-Ch-Ua":'"Chromium";v="116", "Not)A;Brand";v="24", "Brave";v="116"',
+"Sec-Ch-Ua-Mobile": "?0",
+"Sec-Ch-Ua-Platform": '"Linux"',
+"Sec-Fetch-Dest": "document",
+"Sec-Fetch-Mode": "navigate",
+"Sec-Fetch-Site": "same-origin",
+"Sec-Fetch-User": "?1",
+"Sec-Gpc": "1",
+"Upgrade-Insecure-Requests":"1",
+"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
 }
+
 START_URL = 'https://alternativeto.net'
     
 URL_REGEX =  [
     START_URL + r"\/.*" # websites from the start url
-    r"^https?:\/\/[a-zA-Z0-9.-]+\/.*" #any root domain website
-    
+    #r"^https?:\/\/[a-zA-Z0-9.-]+\/.*" #any root domain website
     ]
 
 Search = { #stuff to find
@@ -102,7 +111,7 @@ def Crawler(url, maxProfundidad):
     else:
         print(f"could not find any in {len(scripts)} script details")
     
-    if redirect and maxProfundidad > 0:
+    if redirect and maxProfundidad != 0:
         Crawler((newUrl for newUrl in redirect), maxProfundidad-1)
     
 ## input
