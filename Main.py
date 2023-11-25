@@ -21,8 +21,6 @@ def generate_random_headers():
     platforms = ["Windows", "Linux", "Mac"]
 
     retHeaders = {
-        "Accept-Encoding": "gzip, deflate, br",
-        "Accept-Language": "en-US,en;q=0.8",
         "Sec-Ch-Ua": f"\"{random.choice(user_agents)}\"",
         "Sec-Ch-Ua-Mobile": f"?{random.randint(0, 1)}",
         "Sec-Ch-Ua-Platform": f"\"{random.choice(platforms)}\"",
