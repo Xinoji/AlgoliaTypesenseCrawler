@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 import httpx
 import re
 
+countVisitados = 0
 Visited = []
 urlActual = ""
 PROFUNDIDAD_MAXIMA = 10
@@ -24,7 +25,7 @@ HEADERS = {
 "User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
 }
 
-START_URL = 'https://alternativeto.net'
+START_URL = 'https://www.flat.mx'
     
 URL_REGEX =  [
     START_URL + r"\/.*" # websites from the start url
@@ -54,16 +55,17 @@ def getPageData(url):
         return response, scripts, pages
     except Exception as error:
         print(error)
+        return None, None, None
 
 def getNewUrls(pages):
     redirect = []
-    for newUrl in pages:    
+    for newUrl in pages:
+        newUrl = urljoin(urlActual, newUrl)
         for regex in URL_REGEX:
             tmp = re.findall(regex, newUrl)
             tmp.append("")
-            tmp[0] = urljoin(urlActual, tmp[0]) 
             if tmp[0] != "" and not (tmp[0] in Visited):
-                redirect += tmp[0] 
+                redirect += [tmp[0]] 
     return list(set(redirect))
 
 def FoundAllRegex(script):
@@ -87,15 +89,12 @@ def SearchRegexInScripts(scripts):
     return results
 
 def Crawler(url, maxProfundidad):
-    global Visited
-    global urlActual
+    global Visited, urlActual, countVisitados
     urlActual = url
     print(url)
     
     Visited.append(url)
     response, scripts, pages = getPageData(url)
-    print(response)
-    print(response.is_error)
     redirect = getNewUrls(pages)
     prioridades = ["app", "settings", "main"]
     
@@ -106,15 +105,18 @@ def Crawler(url, maxProfundidad):
     if results:
         results = list(set(results))
         print(f"find {len(results)} in {url}")
-        with open(f'Output/{url.removeprefix("https://")}.txt', 'w') as file:
+        countVisitados += 1
+        with open(f'Output/{countVisitados}.txt', 'w') as file:
             file.writelines(x + "\n" for x in results)
     else:
         print(f"could not find any in {len(scripts)} script details")
     
     if redirect and maxProfundidad != 0:
-        Crawler((newUrl for newUrl in redirect), maxProfundidad-1)
+        for newUrl in redirect:
+            Crawler(newUrl, maxProfundidad-1)
     
 ## input
+
 try:
     Crawler(START_URL, PROFUNDIDAD_MAXIMA)
 except Exception as error:
