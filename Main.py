@@ -9,28 +9,34 @@ Visited = []
 urlActual = ""
 PROFUNDIDAD_MAXIMA = 10
 
-HEADERS = {
-"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-"Accept-Encoding": "gzip, deflate, br",
-"Accept-Language": "en-US,en;q=0.8",
-"Cache-Control": "max-age=0",
-"Sec-Ch-Ua":'"Chromium";v="116", "Not)A;Brand";v="24", "Brave";v="116"',
-"Sec-Ch-Ua-Mobile": "?0",
-"Sec-Ch-Ua-Platform": '"Linux"',
-"Sec-Fetch-Dest": "document",
-"Sec-Fetch-Mode": "navigate",
-"Sec-Fetch-Site": "same-origin",
-"Sec-Fetch-User": "?1",
-"Sec-Gpc": "1",
-"Upgrade-Insecure-Requests":"1",
-"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
-}
+# Generation of random Headers to evit been detected as scrapper by the site
+def generate_random_headers():
+    user_agents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36",
+    ]
 
-START_URL = 'https://www.flat.mx/'
+    platforms = ["Windows", "Linux", "Mac"]
+
+    retHeaders = {
+        "Referer": "https://example.com/",
+        "Sec-Ch-Ua": f"\"{random.choice(user_agents)}\"",
+        "Sec-Ch-Ua-Mobile": f"?{random.randint(0, 1)}",
+        "Sec-Ch-Ua-Platform": f"\"{random.choice(platforms)}\"",
+        "User-Agent": random.choice(user_agents),
+    }
+
+    return retHeaders
+
+HEADERS = generate_random_headers()
+
+
+START_URL = 'https://alternativeto.net/'
 
 URL_REGEX =  [
-    START_URL + r"\/.*" # websites from the start url
-    #r"^https?:\/\/[a-zA-Z0-9.-]+\/.*" #any root domain website
+    #START_URL + r"\/.*" # websites from the start url   
+    r"^https?:\/\/[a-zA-Z0-9.-]+\/.*" #any root domain website
     ]
 
 Search = { #stuff to find
@@ -126,4 +132,3 @@ except Exception as error:
 finally:
     with open(f'Output/Visitados.txt', 'w') as file:
             file.writelines(x + "\n" for x in Visited)
-
