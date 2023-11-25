@@ -2,6 +2,7 @@ from parsel import Selector
 from urllib.parse import urljoin
 import httpx
 import re
+import random
 
 Visited = []
 urlActual = ""
@@ -24,8 +25,14 @@ HEADERS = {
 "User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
 }
 
-START_URL = 'https://alternativeto.net'
-    
+numero_random = random.uniform(1, 2)
+if(numero_random == 1):
+    START_URL = 'https://alternativeto.net'
+    print("We are starting with alternativeto")
+else:
+    START_URL = 'https://www.flat.mx/'
+    print("We are starting with Flat MX")
+
 URL_REGEX =  [
     START_URL + r"\/.*" # websites from the start url
     #r"^https?:\/\/[a-zA-Z0-9.-]+\/.*" #any root domain website
